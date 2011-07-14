@@ -1,0 +1,20 @@
+# vbox-clone-vm completion
+
+have vbox-clone-vm &&
+{
+
+_vbox_clone_vm()
+{
+    return 0
+}
+
+#shopt -u hostcomplete && complete -F _installkernel installkernel
+
+}
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

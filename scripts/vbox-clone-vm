@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+import argparse
+import sys
+
+from vboxclonevm.vm import VM, createNewVM, getVM
+from vboxclonevm.hdd import HDD, Forest, createHDDForest
+from vboxclonevm.utils import *
+
+
+def printVMs(vms):
+    "Print a list of existing VMs."
+    longest_vm = max([len(vm.name) for vm in vms])
+    for vm in vms:
+        print("%-*s  {%s}" % (longest_vm, vm.name,  vm.uuid))
+
+def main():
+    hddforest = createHDDForest()
+    vms = getVM(hddforest)
+
+    def checkvmtype(string):
+        vms_with_this_name = [vm for vm in vms if vm.name == string or vm.uuid == string]
+        if not vms_with_this_name:
+            raise argparse.ArgumentTypeError("No vms with name \"%s\"." % string)
+        if len(vms_with_this_name) > 1:
+            raise argparse.ArgumentTypeError("Multiple vms with name \"%s\"." % string)
+        return string
+
+    parser = argparse.ArgumentParser(description="Clone the current state of a VirtualBox VM.")
+
+    parser.add_argument('VM', type=checkvmtype, nargs="?", help="VirtualBox VM name")
+    parser.add_argument('NEW_VM_NAME', type=str, nargs="?", help="VirtualBox VM name")
+
+    parser.add_argument('--list-vms', action='store_true', help="list available vms")
+    parser.add_argument('--list-hdds', action='store_true', help="list available vms")
+
+    args = parser.parse_args()
+
+    if args.list_vms:
+        printVMs(vms)
+        sys.exit(0)
+
+    if args.list_hdds:
+        for hdd in hddforest.getends():
+            print("%s  (%s)" % (hdd.uuid, hdd.hdvm or ''))
+            #print("%s" % hdd)
+        sys.exit(0)
+
+    if not args.VM:
+        print("ERROR! Must specify VM.\n")
+        parser.print_usage()
+        print("\nVMs:")
+        printVMs(vms)
+        sys.exit(1)
+
+    if not args.NEW_VM_NAME:
+        print("ERROR! Must specify new VM name.\n")
+        parser.print_usage()
+        sys.exit(1)
+
+    if args.NEW_VM_NAME in [vm.name for vm in vms]:
+        print("ERROR! VM \"%s\" already exists.\n" % args.NEW_VM_NAME)
+        parser.print_usage()
+        sys.exit(1)
+
+    tmp_vms = [vm for vm in vms if vm.uuid == args.VM or vm.name == args.VM]
+    assert(len(tmp_vms) == 1)
+    vm = tmp_vms[0]
+
+    hdds = hddsattachedto(args.VM, hddforest)
+
+    vm.fillininfo()
+
+    # create new vm and fill in all applicable info from old vm
+    newvm = createNewVM(args.NEW_VM_NAME, vm.info["ostype"], hddforest)
+    newvm.setinfofrom(vm)
+
+    print("Created new vm: %s" % newvm)
+
+
+if __name__ == '__main__':
+    main()

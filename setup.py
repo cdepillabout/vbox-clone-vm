@@ -8,7 +8,9 @@ setup(name='vbox-clone-vm',
       author='(cdep) illabout',
       author_email='cdep.illabout@gmail.com',
       #url='http://www.python.org/sigs/distutils-sig/',
-      scripts=['src/vbox-clone-vm'],
+      scripts=['scripts/vbox-clone-vm'],
+      packages=['vboxclonevm'],
+      package_dir={'vboxclonevm': 'src/vboxclonevm'},
       data_files=[('etc/bash_completion.d', ['datafiles/bash_completion.d/vbox-clone-vm'])],
      )
 

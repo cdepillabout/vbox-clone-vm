@@ -1,4 +1,8 @@
 
+"""
+Various utilities for working with VirtualBox VMs and HDDs.
+"""
+
 import os
 import re
 import sys

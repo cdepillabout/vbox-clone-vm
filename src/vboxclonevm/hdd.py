@@ -1,4 +1,9 @@
 
+"""
+Module that deals with VirtualBox hard disks.  Provides both HDD class and
+Forest class.
+"""
+
 import os
 import re
 import sys

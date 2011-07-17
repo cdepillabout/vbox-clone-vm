@@ -1,4 +1,9 @@
 
+"""
+Module that deals with VirtualBox VMs.  Provides the VM class and helper
+functions.
+"""
+
 import os
 import re
 import sys
